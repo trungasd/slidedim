@@ -1,0 +1,33 @@
+.slidedim-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.slidedim-track {
+  display: flex;
+}
+
+.slidedim-slide {
+  flex: 0 0 calc(100% / 3);
+}
+
+.slidedim-prev,
+.slidedim-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  outline: none;
+  padding: 10px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.slidedim-prev {
+  left: 10px;
+}
+
+.slidedim-next {
+  right: 10px;
+}

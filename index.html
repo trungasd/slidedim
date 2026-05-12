@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slidedim Library</title>
+    <link rel="stylesheet" href="./src/slidedim.css" />
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .slidedim-slide {
+        padding: 30px;
+        text-align: center;
+      }
+
+      .slidedim-slide:nth-child(1) {
+        background: violet;
+      }
+
+      .slidedim-slide:nth-child(2) {
+        background: blanchedalmond;
+      }
+
+      .slidedim-slide:nth-child(3) {
+        background: goldenrod;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="my-slider">
+        <div>Slider 1</div>
+        <div>Slider 2</div>
+        <div>Slider 3</div>
+        <div>Slider 4</div>
+        <div>Slider 5</div>
+        <div>Slider 6</div>
+      </div>
+    </div>
+
+    <script src="./src/slidedim.js"></script>
+    <script>
+      const mySlider = new Slidedim("#my-slider");
+    </script>
+  </body>
+</html>
