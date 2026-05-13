@@ -1,7 +1,10 @@
 .slidedim-wrapper {
-  position: relative;
   width: 100%;
   overflow: hidden;
+}
+
+.slidedim-content {
+  position: relative;
 }
 
 .slidedim-track {
@@ -30,4 +33,24 @@
 
 .slidedim-next {
   right: 10px;
+}
+
+.slidedim-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.slidedim-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #ccc;
+}
+
+.slidedim-dot.active {
+  background-color: #333;
 }
