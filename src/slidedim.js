@@ -11,6 +11,11 @@ function Slidedim(selector, options = {}) {
       speed: 0,
       loop: false,
       nav: true,
+      controlsText: ["<", ">"],
+      controls: true,
+      prevButton: null,
+      nextButton: null,
+      slideBy: 1,
     },
     options,
   );
@@ -25,8 +30,14 @@ Slidedim.prototype._init = function () {
   this.container.classList.add("slidedim-wrapper");
   this._createContent();
   this._createTrack();
-  this._createControls();
-  this._createNav();
+
+  if (this.opt.controls) {
+    this._createControls();
+  }
+
+  if (this.opt.nav) {
+    this._createNav();
+  }
 };
 
 Slidedim.prototype._createContent = function () {
@@ -45,7 +56,7 @@ Slidedim.prototype._createTrack = function () {
       .slice(-this.opt.items)
       .map((node) => node.cloneNode(true));
     const cloneTail = this.slides
-      .slice(0, -this.opt.items)
+      .slice(0, this.opt.items)
       .map((node) => node.cloneNode(true));
 
     this.slides = cloneHead.concat(this.slides.concat(cloneTail));
@@ -61,18 +72,31 @@ Slidedim.prototype._createTrack = function () {
 };
 
 Slidedim.prototype._createControls = function () {
-  this.prevbtn = document.createElement("button");
-  this.prevbtn.className = "slidedim-prev";
-  this.prevbtn.innerText = "<";
+  this.prevBtn = this.opt.prevButton
+    ? document.querySelector(this.opt.prevButton)
+    : document.createElement("button");
 
-  this.nextBtn = document.createElement("button");
-  this.nextBtn.className = "slidedim-next";
-  this.nextBtn.innerText = ">";
+  this.nextBtn = this.opt.nextButton
+    ? document.querySelector(this.opt.nextButton)
+    : document.createElement("button");
 
-  this.content.append(this.prevbtn, this.nextBtn);
+  if (!this.opt.prevButton) {
+    this.prevBtn.textContent = this.opt.controlsText[0];
+    this.prevBtn.className = "slidedim-prev";
+    this.content.appendChild(this.prevBtn);
+  }
 
-  this.prevbtn.onclick = () => this.moveSlide(-1);
-  this.nextBtn.onclick = () => this.moveSlide(1);
+  if (!this.opt.nextButton) {
+    this.nextBtn.textContent = this.opt.controlsText[1];
+    this.nextBtn.className = "slidedim-next";
+    this.content.appendChild(this.nextBtn);
+  }
+
+  const stepSize =
+    this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
+
+  this.prevBtn.onclick = () => this.moveSlide(-stepSize);
+  this.nextBtn.onclick = () => this.moveSlide(stepSize);
 };
 
 Slidedim.prototype._createNav = function () {
@@ -87,7 +111,7 @@ Slidedim.prototype._createNav = function () {
     const dot = document.createElement("button");
     dot.className = "slidedim-dot";
 
-    if (dot === 0) dot.className = "active";
+    if (dot === 0) dot.classList.add("active");
 
     dot.onclick = () => {
       this.currentIndex = this.opt.loop
@@ -134,8 +158,6 @@ Slidedim.prototype._updateNav = function () {
   }
 
   const pageIndex = Math.floor(realIndex / this.opt.items);
-
-  console.log(pageIndex);
 
   const dot = Array.from(this.navWrapper.children);
 
