@@ -8,14 +8,16 @@ function Slidedim(selector, options = {}) {
   this.opt = Object.assign(
     {
       items: 0,
+      speed: 0,
       loop: false,
     },
     options,
   );
   this.slides = Array.from(this.container.children);
-  this.currentIndex = 0;
+  this.currentIndex = this.opt.loop ? this.opt.items : 0;
 
   this._init();
+  this._updatePosition();
 }
 
 Slidedim.prototype._init = function () {
@@ -27,6 +29,17 @@ Slidedim.prototype._init = function () {
 Slidedim.prototype._createTrack = function () {
   this.track = document.createElement("div");
   this.track.className = "slidedim-track";
+
+  if (this.opt.loop) {
+    const cloneHead = this.slides
+      .slice(-this.opt.items)
+      .map((node) => node.cloneNode(true));
+    const cloneTail = this.slides
+      .slice(0, -this.opt.items)
+      .map((node) => node.cloneNode(true));
+
+    this.slides = cloneHead.concat(this.slides.concat(cloneTail));
+  }
 
   this.slides.forEach((slide) => {
     slide.classList.add("slidedim-slide");
@@ -53,15 +66,31 @@ Slidedim.prototype._CreateNavigation = function () {
 };
 
 Slidedim.prototype.moveSlide = function (step) {
-  if (this.opt.loop) {
-    this.currentIndex =
-      (this.currentIndex + step + this.slides.length) % this.slides.length;
-  } else {
-    this.currentIndex = Math.min(
-      Math.max(this.currentIndex + step, 0),
-      this.slides.length - this.opt.items,
-    );
-  }
+  if (this._isAnimating) return;
+  this._isAnimating = true;
+
+  const maxIndex = this.slides.length - this.opt.items;
+
+  this.currentIndex = Math.min(Math.max(this.currentIndex + step, 0), maxIndex);
+  setTimeout(() => {
+    if (this.opt.loop) {
+      if (this.currentIndex <= 0) {
+        this.currentIndex = maxIndex - this.opt.items;
+      } else if (this.currentIndex >= maxIndex) {
+        this.currentIndex = this.opt.items;
+      }
+      this._updatePosition(true);
+    }
+    this._isAnimating = false;
+  }, this.opt.speed);
+
+  this._updatePosition();
+};
+
+Slidedim.prototype._updatePosition = function (instant = false) {
+  this.track.style.transition = instant
+    ? "none"
+    : `transform ease ${this.opt.speed}ms`;
   this.offset = -(this.currentIndex * (100 / this.opt.items));
   this.track.style.transform = `translateX(${this.offset}%)`;
 };
