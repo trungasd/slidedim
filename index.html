@@ -44,18 +44,20 @@
   </head>
   <body>
     <div id="my-slider">
-        <div>Slider 1</div>
-        <div>Slider 2</div>
-        <div>Slider 3</div>
-        <div>Slider 4</div>
-        <div>Slider 5</div>
-        <div>Slider 6</div>
-      </div>
+      <div>Slider 1</div>
+      <div>Slider 2</div>
+      <div>Slider 3</div>
+      <div>Slider 4</div>
+      <div>Slider 5</div>
+      <div>Slider 6</div>
     </div>
 
     <script src="./src/slidedim.js"></script>
     <script>
-      const mySlider = new Slidedim("#my-slider");
+      const mySlider = new Slidedim("#my-slider", {
+        items: 3,
+        loop: true,
+      });
     </script>
   </body>
 </html>

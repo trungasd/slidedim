@@ -5,7 +5,13 @@ function Slidedim(selector, options = {}) {
     return;
   }
 
-  this.opt = Object.assign({}, options);
+  this.opt = Object.assign(
+    {
+      items: 0,
+      loop: false,
+    },
+    options,
+  );
   this.slides = Array.from(this.container.children);
   this.currentIndex = 0;
 
@@ -24,6 +30,7 @@ Slidedim.prototype._createTrack = function () {
 
   this.slides.forEach((slide) => {
     slide.classList.add("slidedim-slide");
+    slide.style.flexBasis = `calc(100% / ${this.opt.items})`;
     this.track.appendChild(slide);
   });
 
@@ -46,10 +53,15 @@ Slidedim.prototype._CreateNavigation = function () {
 };
 
 Slidedim.prototype.moveSlide = function (step) {
-  this.currentIndex = Math.min(
-    Math.max(this.currentIndex + step, 0),
-    this.slides.length - 3,
-  );
-  this.offset = -(this.currentIndex * (100 / 3));
+  if (this.opt.loop) {
+    this.currentIndex =
+      (this.currentIndex + step + this.slides.length) % this.slides.length;
+  } else {
+    this.currentIndex = Math.min(
+      Math.max(this.currentIndex + step, 0),
+      this.slides.length - this.opt.items,
+    );
+  }
+  this.offset = -(this.currentIndex * (100 / this.opt.items));
   this.track.style.transform = `translateX(${this.offset}%)`;
 };
