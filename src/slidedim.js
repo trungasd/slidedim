@@ -99,12 +99,15 @@ Slidedim.prototype._createControls = function () {
   this.nextBtn.onclick = () => this.moveSlide(stepSize);
 };
 
+Slidedim.prototype._getSlideCount = function () {
+  return this.slides.length - (this.opt.loop ? this.opt.items * 2 : 0);
+};
+
 Slidedim.prototype._createNav = function () {
   this.navWrapper = document.createElement("div");
   this.navWrapper.className = "slidedim-nav";
 
-  const slideCount =
-    this.slides.length - (this.opt.loop ? this.opt.items * 2 : 0);
+  const slideCount = this._getSlideCount();
   const pageCount = Math.ceil(slideCount / this.opt.items);
 
   for (let i = 0; i < pageCount; i++) {
@@ -135,11 +138,12 @@ Slidedim.prototype.moveSlide = function (step) {
   this.currentIndex = Math.min(Math.max(this.currentIndex + step, 0), maxIndex);
   setTimeout(() => {
     if (this.opt.loop) {
-      if (this.currentIndex <= 0) {
-        this.currentIndex = maxIndex - this.opt.items;
+      const slideCount = this._getSlideCount();
+      if (this.currentIndex <= this.opt.items) {
+        this.currentIndex += slideCount;
         this._updatePosition(true);
-      } else if (this.currentIndex >= maxIndex) {
-        this.currentIndex = this.opt.items;
+      } else if (this.currentIndex >= slideCount) {
+        this.currentIndex -= slideCount;
         this._updatePosition(true);
       }
     }
