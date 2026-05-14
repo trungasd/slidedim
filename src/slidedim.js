@@ -16,6 +16,8 @@ function Slidedim(selector, options = {}) {
       prevButton: null,
       nextButton: null,
       slideBy: 1,
+      autoPlay: false,
+      autoPlayTimeout: 3000,
     },
     options,
   );
@@ -41,6 +43,17 @@ Slidedim.prototype._init = function () {
   if (this.opt.nav && showNav) {
     this._createNav();
   }
+
+  this._autoPlaySlide();
+};
+
+Slidedim.prototype._autoPlaySlide = function () {
+  if (!this.opt.autoPlay) return;
+
+  this.autoPlayInterval = setInterval(() => {
+    const slideBy = this._getSlideBy();
+    this.moveSlide(slideBy);
+  }, this.opt.autoPlayTimeout);
 };
 
 Slidedim.prototype._createContent = function () {

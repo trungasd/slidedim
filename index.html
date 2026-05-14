@@ -55,10 +55,12 @@
     <script src="./src/slidedim.js"></script>
     <script>
       const mySlider = new Slidedim("#my-slider", {
-        items: 2,
+        items: 1,
         speed: 400,
         loop: true,
-        slideBy: "page",
+        slideBy: 1,
+        autoPlay: true,
+        autoPlayTimeout: 3000,
       });
     </script>
   </body>
