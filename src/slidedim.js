@@ -19,8 +19,9 @@ function Slidedim(selector, options = {}) {
     },
     options,
   );
-  this.slides = Array.from(this.container.children);
-  this.currentIndex = this.opt.loop ? this.opt.items : 0;
+  this.originalSlides = Array.from(this.container.children);
+  this.slides = this.originalSlides.slice(0);
+  this.currentIndex = this.opt.loop ? this._getCloneCount() : 0;
 
   this._init();
   this._updatePosition();
@@ -31,11 +32,13 @@ Slidedim.prototype._init = function () {
   this._createContent();
   this._createTrack();
 
-  if (this.opt.controls) {
+  const showNav = this._getSlideCount() > this.opt.items;
+
+  if (this.opt.controls && showNav) {
     this._createControls();
   }
 
-  if (this.opt.nav) {
+  if (this.opt.nav && showNav) {
     this._createNav();
   }
 };
@@ -47,16 +50,29 @@ Slidedim.prototype._createContent = function () {
   this.container.appendChild(this.content);
 };
 
+Slidedim.prototype._getCloneCount = function () {
+  const slideCount = this._getSlideCount();
+
+  if (slideCount <= this.opt.items) return 0;
+
+  const slideBy = this._getSlideBy();
+  const cloneCount = slideBy + this.opt.items;
+
+  return cloneCount > slideCount ? slideCount : cloneCount;
+};
+
 Slidedim.prototype._createTrack = function () {
   this.track = document.createElement("div");
   this.track.className = "slidedim-track";
 
-  if (this.opt.loop) {
+  const cloneCount = this._getCloneCount();
+
+  if (this.opt.loop && cloneCount > 0) {
     const cloneHead = this.slides
-      .slice(-this.opt.items)
+      .slice(-cloneCount)
       .map((node) => node.cloneNode(true));
     const cloneTail = this.slides
-      .slice(0, this.opt.items)
+      .slice(0, cloneCount)
       .map((node) => node.cloneNode(true));
 
     this.slides = cloneHead.concat(this.slides.concat(cloneTail));
@@ -69,6 +85,10 @@ Slidedim.prototype._createTrack = function () {
   });
 
   this.content.appendChild(this.track);
+};
+
+Slidedim.prototype._getSlideBy = function () {
+  return this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
 };
 
 Slidedim.prototype._createControls = function () {
@@ -92,15 +112,14 @@ Slidedim.prototype._createControls = function () {
     this.content.appendChild(this.nextBtn);
   }
 
-  const stepSize =
-    this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
+  const slideBy = this._getSlideBy();
 
-  this.prevBtn.onclick = () => this.moveSlide(-stepSize);
-  this.nextBtn.onclick = () => this.moveSlide(stepSize);
+  this.prevBtn.onclick = () => this.moveSlide(-slideBy);
+  this.nextBtn.onclick = () => this.moveSlide(slideBy);
 };
 
 Slidedim.prototype._getSlideCount = function () {
-  return this.slides.length - (this.opt.loop ? this.opt.items * 2 : 0);
+  return this.originalSlides.length;
 };
 
 Slidedim.prototype._createNav = function () {
@@ -118,7 +137,7 @@ Slidedim.prototype._createNav = function () {
 
     dot.onclick = () => {
       this.currentIndex = this.opt.loop
-        ? i * this.opt.items + this.opt.items
+        ? i * this.opt.items + this._getCloneCount()
         : i * this.opt.items;
       this._updatePosition();
     };
@@ -139,7 +158,8 @@ Slidedim.prototype.moveSlide = function (step) {
   setTimeout(() => {
     if (this.opt.loop) {
       const slideCount = this._getSlideCount();
-      if (this.currentIndex <= this.opt.items) {
+
+      if (this.currentIndex <= this._getCloneCount()) {
         this.currentIndex += slideCount;
         this._updatePosition(true);
       } else if (this.currentIndex >= slideCount) {
@@ -154,11 +174,14 @@ Slidedim.prototype.moveSlide = function (step) {
 };
 
 Slidedim.prototype._updateNav = function () {
+  if (!this.navWrapper) return;
+
   let realIndex = this.currentIndex;
 
   if (this.opt.loop) {
-    const slideCount = this.slides.length - this.opt.items * 2;
-    realIndex = (this.currentIndex - this.opt.items + slideCount) % slideCount;
+    const slideCount = this._getSlideCount();
+    realIndex =
+      (this.currentIndex - this._getCloneCount() + slideCount) % slideCount;
   }
 
   const pageIndex = Math.floor(realIndex / this.opt.items);
