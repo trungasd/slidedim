@@ -16,8 +16,8 @@ function Slidedim(selector, options = {}) {
       prevButton: null,
       nextButton: null,
       slideBy: 1,
-      autoPlay: false,
-      stopAutoPlay: false,
+      autoplay: false,
+      autoplayHoverPause: false,
       autoPlaySpeed: 3000,
     },
     options,
@@ -49,11 +49,11 @@ Slidedim.prototype._init = function () {
 };
 
 Slidedim.prototype._autoPlaySlide = function () {
-  if (!this.opt.autoPlay) return;
+  if (!this.opt.autoplay) return;
 
   this._startAutoPlay();
 
-  if (this.opt.stopAutoPlay) {
+  if (this.opt.autoplayHoverPause) {
     this.content.onmouseenter = () => this._clearAutoPlay();
     this.content.onmouseleave = () => this._startAutoPlay();
   }
