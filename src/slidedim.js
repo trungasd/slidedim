@@ -7,7 +7,7 @@ function Slidedim(selector, options = {}) {
 
   this.opt = Object.assign(
     {
-      items: 0,
+      items: 1,
       speed: 0,
       loop: false,
       nav: true,
@@ -17,7 +17,8 @@ function Slidedim(selector, options = {}) {
       nextButton: null,
       slideBy: 1,
       autoPlay: false,
-      autoPlayTimeout: 3000,
+      stopAutoPlay: false,
+      autoPlaySpeed: 3000,
     },
     options,
   );
@@ -50,10 +51,25 @@ Slidedim.prototype._init = function () {
 Slidedim.prototype._autoPlaySlide = function () {
   if (!this.opt.autoPlay) return;
 
+  this._startAutoPlay();
+
+  if (this.opt.stopAutoPlay) {
+    this.content.onmouseenter = () => this._clearAutoPlay();
+    this.content.onmouseleave = () => this._startAutoPlay();
+  }
+};
+
+Slidedim.prototype._startAutoPlay = function () {
+  this._clearAutoPlay();
   this.autoPlayInterval = setInterval(() => {
-    const slideBy = this._getSlideBy();
-    this.moveSlide(slideBy);
-  }, this.opt.autoPlayTimeout);
+    this.moveSlide(this._getSlideBy());
+  }, this.opt.autoPlaySpeed);
+};
+
+Slidedim.prototype._clearAutoPlay = function () {
+  if (this.autoPlayInterval) {
+    clearInterval(this.autoPlayInterval);
+  }
 };
 
 Slidedim.prototype._createContent = function () {
@@ -146,7 +162,7 @@ Slidedim.prototype._createNav = function () {
     const dot = document.createElement("button");
     dot.className = "slidedim-dot";
 
-    if (dot === 0) dot.classList.add("active");
+    if (i === 0) dot.classList.add("active");
 
     dot.onclick = () => {
       this.currentIndex = this.opt.loop
@@ -166,8 +182,15 @@ Slidedim.prototype.moveSlide = function (step) {
   this._isAnimating = true;
 
   const maxIndex = this.slides.length - this.opt.items;
+  this.currentIndex += step;
 
-  this.currentIndex = Math.min(Math.max(this.currentIndex + step, 0), maxIndex);
+  if (!this.opt.loop) {
+    this.currentIndex = Math.min(
+      Math.max(this.currentIndex + step, 0),
+      maxIndex,
+    );
+  }
+
   setTimeout(() => {
     if (this.opt.loop) {
       const slideCount = this._getSlideCount();
